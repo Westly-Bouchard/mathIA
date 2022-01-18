@@ -242,10 +242,10 @@ class Traditional:
 
 
 def main():
-    num_nodes = 20
+    num_nodes = 50
     num_iterations = 100
     graph = Graph(num_nodes)
-    aco = ACO(graph, 0.2, 2, 0.65, 0.1, num_iterations)
+    aco = ACO(graph, 1, 10, 0.65, 0.1, num_iterations)
     evolution = aco.solve()
     traditional_solver = Traditional(graph)
     l_bound = traditional_solver.find_lower_bound()
