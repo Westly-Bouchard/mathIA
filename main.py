@@ -77,24 +77,27 @@ class ACO:
     pheromone_matrix = [[]]
     ants = []
 
-    def __init__(self, graph, alpha, beta, evap_const, starting_pheromone_const):
+    def __init__(self, graph, alpha, beta, evap_const, starting_pheromone_const, num_iterations):
         self.pheromone_matrix = [[starting_pheromone_const for i in range(graph.numNodes)] for j in
                                  range(graph.numNodes)]
         self.alpha = alpha
         self.beta = beta
         self.evap_const = evap_const
         self.graph = graph
+        self.num_iterations = num_iterations
 
     def solve(self):
         min_tour = 1e99
         evolution = []
-        for i in range(50):
+        for i in range(self.num_iterations):
             self.place_ants()
             for i in range(self.graph.numNodes - 1):
                 self.move_ants()
             for ant in self.ants:
-                if ant.currentCount < min_tour:
-                    min_tour = ant.currentCount
+                actual_count = ant.currentCount
+                actual_count += ant.tabu_list[-1].get_distance(ant.tabu_list[0])
+                if actual_count < min_tour:
+                    min_tour = actual_count
             print(min_tour)
             evolution.append(min_tour)
             self.update_pheromone()
@@ -239,23 +242,26 @@ class Traditional:
 
 
 def main():
-    graph = Graph(20)
-    aco = ACO(graph, 0.20, 1.25, 0.65, 0.1)
+    num_nodes = 20
+    num_iterations = 100
+    graph = Graph(num_nodes)
+    aco = ACO(graph, 0.2, 2, 0.65, 0.1, num_iterations)
     evolution = aco.solve()
     traditional_solver = Traditional(graph)
     l_bound = traditional_solver.find_lower_bound()
     u_bound = traditional_solver.find_upper_bound()
     print(l_bound)
     print(u_bound)
-    lower_bound = [l_bound for i in range(50)]
-    upper_bound = [u_bound for i in range(50)]
-    x_axis = [i for i in range(50)]
+    lower_bound = [l_bound for i in range(num_iterations)]
+    upper_bound = [u_bound for i in range(num_iterations)]
+    x_axis = [i for i in range(num_iterations)]
     plt.plot(x_axis, evolution, label="ACO")
     plt.plot(x_axis, lower_bound, label="Lower Bound")
     plt.plot(x_axis, upper_bound, label="Upper Bound")
     plt.xlabel("# Of Iterations")
     plt.ylabel("Length of Solution")
     plt.legend()
+    plt.title("Graph with " + str(num_nodes) + " Vertices")
     plt.show()
 
 
