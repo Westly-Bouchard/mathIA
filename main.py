@@ -1,8 +1,6 @@
 import random, math
 from copy import deepcopy
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Node:
@@ -87,8 +85,8 @@ class ACO:
         self.num_iterations = num_iterations
 
     def solve(self):
-        min_tour = 1e99
         evolution = []
+        min_tour = 1e99
         for i in range(self.num_iterations):
             self.place_ants()
             for i in range(self.graph.numNodes - 1):
@@ -105,7 +103,7 @@ class ACO:
 
     def place_ants(self):
         self.ants.clear()
-        while len(self.ants) != self.graph.numNodes:
+        while len(self.ants) != self.graph.numNodes / 3:
             ant = Ant(self.graph.nodes[random.randint(0, self.graph.numNodes - 1)])
             safe = True
             for cmp_ant in self.ants:
@@ -150,9 +148,9 @@ class ACO:
     def calculate_desirability(self, current_node, possible_node):
         dist = current_node.get_distance(possible_node)
         # pheromone = 0
-        pheromone = self.pheromone_matrix[self.graph.nodes.index(current_node) % 5][
-            self.graph.nodes.index(possible_node) % 5]  # Need to figure out how to index into the pheromone matrix
-        desirability = (pheromone ** self.alpha) * (1 / dist) ** self.beta
+        pheromone = self.pheromone_matrix[self.graph.nodes.index(current_node)][
+            self.graph.nodes.index(possible_node)]
+        desirability = (math.pow(pheromone, self.alpha)) * (1 / dist) ** self.beta
         return desirability
 
     def evaporate_pheromones(self):
@@ -242,14 +240,14 @@ class Traditional:
 
 
 def main():
-    num_nodes = 50
-    num_iterations = 100
+    num_nodes = 75
+    num_iterations = 75
     graph = Graph(num_nodes)
     aco = ACO(graph, 1, 10, 0.65, 0.1, num_iterations)
     evolution = aco.solve()
     traditional_solver = Traditional(graph)
-    l_bound = traditional_solver.find_lower_bound()
     u_bound = traditional_solver.find_upper_bound()
+    l_bound = traditional_solver.find_lower_bound()
     print(l_bound)
     print(u_bound)
     lower_bound = [l_bound for i in range(num_iterations)]
@@ -265,6 +263,5 @@ def main():
     plt.show()
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
