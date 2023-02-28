@@ -1,6 +1,7 @@
 import random, math
 from copy import deepcopy
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Node:
@@ -103,7 +104,7 @@ class ACO:
 
     def place_ants(self):
         self.ants.clear()
-        while len(self.ants) != self.graph.numNodes / 3:
+        while len(self.ants) != self.graph.numNodes / 4:
             ant = Ant(self.graph.nodes[random.randint(0, self.graph.numNodes - 1)])
             safe = True
             for cmp_ant in self.ants:
@@ -240,8 +241,8 @@ class Traditional:
 
 
 def main():
-    num_nodes = 75
-    num_iterations = 75
+    num_nodes = 40
+    num_iterations = 50
     graph = Graph(num_nodes)
     aco = ACO(graph, 1, 10, 0.65, 0.1, num_iterations)
     evolution = aco.solve()
@@ -252,7 +253,7 @@ def main():
     print(u_bound)
     lower_bound = [l_bound for i in range(num_iterations)]
     upper_bound = [u_bound for i in range(num_iterations)]
-    x_axis = [i for i in range(num_iterations)]
+    x_axis = [i + 1 for i in range(num_iterations)]
     plt.plot(x_axis, evolution, label="ACO")
     plt.plot(x_axis, lower_bound, label="Lower Bound")
     plt.plot(x_axis, upper_bound, label="Upper Bound")
@@ -260,6 +261,20 @@ def main():
     plt.ylabel("Length of Solution")
     plt.legend()
     plt.title("Graph with " + str(num_nodes) + " Vertices")
+
+    # Regressions
+    fit = np.polyfit(np.log(x_axis), evolution, 1, full=True)
+
+    print(fit)
+
+    print(f'Regression Calculation: y = {fit[0][1]} {fit[0][0]} * ln(x)')
+    print("Point of diminishing returns:")
+
+    slope = int(fit[0][0])
+    slope = slope * -1
+
+    print(slope)
+
     plt.show()
 
 
